@@ -18,32 +18,47 @@ impl std::fmt::Display for AtomType {
     }
 }
 
-#[pyclass]
+#[pyclass(module = "nanoPDB", frozen)]
 pub struct Atom {
-    label: AtomType,
+    pub label: AtomType,
 
+    /// [int] Atom number.
     #[pyo3(get)]
-    number: usize,
+    pub number: usize,
 
+    /// [str] Atom name.
     #[pyo3(get)]
-    name: String,
+    pub name: String,
 
+    /// [str] Chemical element name.
     #[pyo3(get)]
-    element: String,
+    pub element: String,
 
+    /// [(float, float, float)] Position of an atom in 3D space.
     #[pyo3(get)]
-    position: (f64, f64, f64),
+    pub position: (f64, f64, f64),
 
+    /// [float] Atom occupancy.
     #[pyo3(get)]
-    occupancy: f64,
+    pub occupancy: f64,
 }
 
+/// Atom - a class that represents an atom of a PDB structure.
 #[pymethods]
 impl Atom {
+    // ----------------------------------------------------------------------------------------
+    // Getters
+    // ----------------------------------------------------------------------------------------
+
+    /// [str] Indicates the type of atom.
     #[getter]
     pub fn label(&self) -> String {
         format!("{}", self.label)
     }
+
+    // ----------------------------------------------------------------------------------------
+    // Special methods
+    // ----------------------------------------------------------------------------------------
 
     pub fn __repr__(&self) -> String {
         format!("{:#}", self)

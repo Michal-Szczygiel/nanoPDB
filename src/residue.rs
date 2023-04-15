@@ -1,24 +1,31 @@
 use crate::atom::Atom;
 
 use pyo3::{
-    exceptions::PyIndexError, pyclass, pymethods, Py, PyRefMut, PyResult, PyTraverseError, PyVisit,
-    Python,
+    exceptions::PyIndexError, pyclass, pymethods, types::PyList, Py, PyRefMut, PyResult,
+    PyTraverseError, PyVisit, Python,
 };
 
-#[pyclass]
+/// Residue - a class that represents a residue of a PDB structure.
+#[pyclass(module = "nanoPDB")]
 pub struct Residue {
+    /// [int] Residue number.
     #[pyo3(get)]
-    number: isize,
+    pub number: isize,
 
+    /// [str] Residue name.
     #[pyo3(get)]
-    name: String,
+    pub name: String,
 
-    atoms: Vec<Option<Py<Atom>>>,
-    current_index: usize,
+    pub atoms: Vec<Option<Py<Atom>>>,
+    pub current_index: usize,
 }
 
 #[pymethods]
 impl Residue {
+    // ----------------------------------------------------------------------------------------
+    // Special methods
+    // ----------------------------------------------------------------------------------------
+
     pub fn __clear__(&mut self) {
         for atom in self.atoms.iter_mut() {
             *atom = None;
@@ -71,6 +78,75 @@ impl Residue {
         }
 
         Ok(())
+    }
+
+    // ----------------------------------------------------------------------------------------
+    // Methods
+    // ----------------------------------------------------------------------------------------
+
+    /// Returns a list of atoms that builds the residue.
+    ///
+    ///
+    /// Returns
+    /// -------
+    /// list[Atom]
+    ///     The list of atoms that builds the residue.
+    ///
+    ///
+    /// Examples
+    /// --------
+    /// Retrieving the list of atoms that builds the residue.
+    ///
+    /// >>> parser = nanoPDB.Parser()
+    /// >>> structure = parser.fetch("1zhy")
+    /// >>> residue = structure[0][0]
+    /// >>> residue.get_atoms()
+    ///
+    /// [Atom {
+    ///     label: "ATOM",
+    ///     number: 1,
+    ///     name: "N",
+    ///     element: "N",
+    ///     position: (
+    ///         42.854,
+    ///         36.56,
+    ///         10.394,
+    ///     ),
+    ///     occupancy: 1.0,
+    /// }, Atom {
+    ///     label: "ATOM",
+    ///     number: 2,
+    ///     name: "CA",
+    ///     element: "C",
+    ///     position: (
+    ///         42.25,
+    ///         35.232,
+    ///         10.096,
+    ///     ),
+    ///     occupancy: 1.0,
+    /// }, Atom {
+    ///     label: "ATOM",
+    ///     number: 3,
+    ///     name: "C",
+    ///     element: "C",
+    ///     position: (
+    ///         41.642,
+    ///         34.623,
+    ///         11.355,
+    ///     ),
+    ///     occupancy: 1.0,
+    /// }
+    /// ...
+    #[pyo3(signature = (/))]
+    pub fn get_atoms(&self, python: Python) -> Py<PyList> {
+        PyList::new(
+            python,
+            self.atoms.iter().map(|atom| {
+                atom.as_ref()
+                    .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
+            }),
+        )
+        .into()
     }
 }
 

@@ -1,29 +1,40 @@
 use pyo3::{pyclass, pymethods};
 
-#[pyclass]
+/// UnitCell - a class that represents a unit cell of a PDB structure.
+#[pyclass(module = "nanoPDB", frozen)]
 #[derive(Default)]
 pub struct UnitCell {
+    /// [float] Length of side 'a' of unit cell.
     #[pyo3(get)]
     pub a: f64,
 
+    /// [float] Length of side 'b' of unit cell.
     #[pyo3(get)]
     pub b: f64,
 
+    /// [float] Length of side 'c' of unit cell.
     #[pyo3(get)]
     pub c: f64,
 
+    /// [float] Alpha angle ('b' -> 'c') of unit cell (in radians).
     #[pyo3(get)]
     pub alpha: f64,
 
+    /// [float] Beta angle ('c' -> 'a') of unit cell (in radians).
     #[pyo3(get)]
     pub beta: f64,
 
+    /// [float] amma angle ('a' -> 'b') of unit cell (in radians).
     #[pyo3(get)]
     pub gamma: f64,
 }
 
 #[pymethods]
 impl UnitCell {
+    // ----------------------------------------------------------------------------------------
+    // Special methods
+    // ----------------------------------------------------------------------------------------
+
     pub fn __repr__(&self) -> String {
         format!("{:#}", self)
     }

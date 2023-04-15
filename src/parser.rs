@@ -10,23 +10,54 @@ use pyo3::{exceptions::PyException, pyclass, pymethods, PyResult, Python};
 
 use std::{fs::File, io::Read, str::FromStr};
 
-#[pyclass]
+/// Parser - a class for parsing structures in PDB format.
+#[pyclass(module = "nanoPDB", frozen)]
 pub struct Parser;
 
 #[pymethods]
 impl Parser {
+    // ----------------------------------------------------------------------------------------
+    // Special methods
+    // ----------------------------------------------------------------------------------------
+
     #[new]
     pub fn __new__() -> Self {
         Parser {}
     }
 
-    pub fn parse(&self, python: Python, path: String) -> PyResult<Structure> {
-        let mut content = String::with_capacity(1024);
-        File::open(path)?.read_to_string(&mut content)?;
+    // ----------------------------------------------------------------------------------------
+    // Methods
+    // ----------------------------------------------------------------------------------------
 
-        parse_pdb(python, &content)
-    }
-
+    /// Fetches structure from RCSB PDB database, parses it and returns Structure object.
+    ///
+    ///
+    /// Parameters
+    /// ----------
+    /// pdbid : str
+    ///     PDB ID of structure from RCSB PDB.
+    ///
+    ///
+    /// Returns
+    /// -------
+    /// Structure
+    ///     Parsed structure.
+    ///
+    ///
+    /// Examples
+    /// --------
+    /// Fetching structure from RCSB PDB database.
+    ///
+    /// >>> parser = nanoPDB.Parser()
+    /// >>> structure = parser.fetch("1zhy")
+    /// >>> structure
+    ///
+    /// Structure {
+    ///     pdbid: "1ZHY",
+    ///     classification: "LIPID BINDING PROTEIN",
+    ///     date: "26-APR-05",
+    /// }
+    #[pyo3(signature = (pdbid, /))]
     pub fn fetch(&self, python: Python, pdbid: String) -> PyResult<Structure> {
         let response = match reqwest::blocking::get(format!(
             "https://files.rcsb.org/download/{}.pdb",
@@ -40,6 +71,42 @@ impl Parser {
             Ok(content) => content,
             Err(error) => return Err(PyException::new_err(format!("{}", error))),
         };
+
+        parse_pdb(python, &content)
+    }
+
+    /// Parses PDB file and returns the Structure object.
+    ///
+    ///
+    /// Parameters
+    /// ----------
+    /// path : str
+    ///     The path to the PDB file.
+    ///
+    ///
+    /// Returns
+    /// -------
+    /// Structure
+    ///     Parsed structure.
+    ///
+    ///
+    /// Examples
+    /// --------
+    /// Loading structure from file.
+    ///
+    /// >>> parser = nanoPDB.Parser()
+    /// >>> structure = parser.parse("tests/1zhy.pdb")
+    /// >>> structure
+    ///
+    /// Structure {
+    ///     pdbid: "1ZHY",
+    ///     classification: "LIPID BINDING PROTEIN",
+    ///     date: "26-APR-05",
+    /// }
+    #[pyo3(signature = (path, /))]
+    pub fn parse(&self, python: Python, path: String) -> PyResult<Structure> {
+        let mut content = String::with_capacity(1024);
+        File::open(path)?.read_to_string(&mut content)?;
 
         parse_pdb(python, &content)
     }
