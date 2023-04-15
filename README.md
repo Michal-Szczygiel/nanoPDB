@@ -1,3 +1,5 @@
+![](https://github.com/Michal-Szczygiel/nanoPDB/blob/master/nanoPDB_logo.png)
+
 # Prerequisites:
 - **Rust compiler** ([installation instructions](https://www.rust-lang.org/tools/install), it is important to allow installation of Visual Studio C++ Build tools on Windows - this is the default installation procedure),
 - **Python** version at least 3.7
