@@ -7,7 +7,6 @@ use pyo3::{
 
 /// Structure - a class that represents a PDB structure.
 #[pyclass(module = "nanoPDB")]
-#[derive(Default)]
 pub struct Structure {
     /// [str] PDB ID of a structure.
     #[pyo3(get)]
@@ -275,6 +274,17 @@ impl Structure {
 }
 
 impl Structure {
+    pub fn new(python: Python) -> PyResult<Self> {
+        Ok(Structure {
+            pdbid: String::default(),
+            classification: String::default(),
+            date: String::default(),
+            unit_cell: Some(Py::new(python, UnitCell::default())?),
+            chains: Vec::default(),
+            current_index: 0,
+        })
+    }
+
     #[inline(always)]
     pub fn set_header(&mut self, pdbid: &str, classification: &str, date: &str) {
         self.pdbid = pdbid.to_string();

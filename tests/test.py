@@ -1,6 +1,7 @@
 import nanoPDB
 
 parser = nanoPDB.Parser()
-structure = parser.parse("tests/1zhy.pdb")
+structure = parser.fetch("1zhy")
 
 print(structure)
+print(structure.unit_cell)
