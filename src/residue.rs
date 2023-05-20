@@ -5,23 +5,32 @@ use pyo3::{
     PyTraverseError, PyVisit, Python,
 };
 
+use heapless;
+
 /// Residue - a class that represents a residue of a PDB structure.
 #[pyclass(module = "nanoPDB")]
 pub struct Residue {
     /// [int] Residue number.
     #[pyo3(get)]
-    pub number: isize,
+    pub number: i32,
 
-    /// [str] Residue name.
-    #[pyo3(get)]
-    pub name: String,
-
+    pub name: heapless::String<4>,
     pub atoms: Vec<Option<Py<Atom>>>,
     pub current_index: usize,
 }
 
 #[pymethods]
 impl Residue {
+    // ----------------------------------------------------------------------------------------
+    // Getters
+    // ----------------------------------------------------------------------------------------
+
+    /// [str] Residue name.
+    #[getter]
+    pub fn name(&self) -> String {
+        self.name.to_string()
+    }
+
     // ----------------------------------------------------------------------------------------
     // Special methods
     // ----------------------------------------------------------------------------------------
@@ -34,7 +43,11 @@ impl Residue {
 
     pub fn __getitem__(&self, python: Python, index: usize) -> PyResult<Py<Atom>> {
         if index < self.atoms.len() {
-            Ok(self.atoms[index].as_ref().expect("").as_ref(python).into())
+            Ok(self.atoms[index]
+                .as_ref()
+                .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
+                .as_ref(python)
+                .into())
         } else {
             Err(PyIndexError::new_err("index out of range"))
         }
@@ -100,6 +113,7 @@ impl Residue {
     /// >>> parser = nanoPDB.Parser()
     /// >>> structure = parser.fetch("1zhy")
     /// >>> residue = structure[0][0]
+    /// ...
     /// >>> residue.get_atoms()
     ///
     /// [Atom {
@@ -152,20 +166,13 @@ impl Residue {
 
 impl Residue {
     #[inline(always)]
-    pub fn new(number: isize, name: &str) -> Self {
+    pub fn new(number: i32, name: &str) -> Self {
         Residue {
             number,
-            name: name.to_string(),
+            name: name.into(),
             atoms: Vec::default(),
             current_index: 0,
         }
-    }
-
-    #[inline(always)]
-    pub fn add_atom(&mut self, python: Python, atom: Atom) -> PyResult<()> {
-        self.atoms.push(Some(Py::new(python, atom)?));
-
-        Ok(())
     }
 }
 

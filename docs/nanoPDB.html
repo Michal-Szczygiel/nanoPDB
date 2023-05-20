@@ -409,9 +409,11 @@ nanoPDB    </h1>
 <h3 id="retrieving-the-list-of-atoms-that-builds-the-residue">Retrieving the list of atoms that builds the residue.</h3>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
-<span class="n">residue</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">residue</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">residue</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
 </code></pre>
 </div>
 
@@ -505,10 +507,11 @@ nanoPDB    </h1>
 <h3 id="retrieving-the-list-of-atoms-that-builds-the-chain">Retrieving the list of atoms that builds the chain.</h3>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
-<span class="n">chain</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">chain</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chain</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chain</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
 </code></pre>
 </div>
 
@@ -574,10 +577,11 @@ nanoPDB    </h1>
 <h3 id="retrieving-the-list-of-residues-that-builds-the-residue">Retrieving the list of residues that builds the residue.</h3>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
-<span class="n">chain</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">chain</span><span class="o">.</span><span class="n">get_residues</span><span class="p">()</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chain</span> <span class="o">=</span> <span class="n">structure</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chain</span><span class="o">.</span><span class="n">get_residues</span><span class="p">()</span>
 </code></pre>
 </div>
 
@@ -686,9 +690,10 @@ nanoPDB    </h1>
 <h3 id="retrieving-the-list-of-atoms-that-builds-the-structure">Retrieving the list of atoms that builds the structure.</h3>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
-<span class="n">structure</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">()</span>
 </code></pre>
 </div>
 
@@ -754,9 +759,10 @@ nanoPDB    </h1>
 <h3 id="retrieving-the-list-of-chains-that-builds-the-structure">Retrieving the list of chains that builds the structure.</h3>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
-<span class="n">structure</span><span class="o">.</span><span class="n">get_chains</span><span class="p">()</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">get_chains</span><span class="p">()</span>
 </code></pre>
 </div>
 
@@ -790,9 +796,10 @@ nanoPDB    </h1>
 <h3 id="retrieving-the-list-of-residues-that-builds-the-structure">Retrieving the list of residues that builds the structure.</h3>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
-<span class="n">structure</span><span class="o">.</span><span class="n">get_residues</span><span class="p">()</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span><span class="o">.</span><span class="n">get_residues</span><span class="p">()</span>
 </code></pre>
 </div>
 
@@ -854,9 +861,10 @@ nanoPDB    </h1>
 <h3 id="fetching-structure-from-rcsb-pdb-database">Fetching structure from RCSB PDB database.</h3>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
-<span class="n">structure</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;1zhy&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span>
 </code></pre>
 </div>
 
@@ -897,9 +905,10 @@ nanoPDB    </h1>
 <h3 id="loading-structure-from-file">Loading structure from file.</h3>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
-<span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;tests/1zhy.pdb&quot;</span><span class="p">)</span>
-<span class="n">structure</span>
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n"><a href="#Parser">nanoPDB.Parser</a></span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s2">&quot;tests/1zhy.pdb&quot;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">structure</span>
 </code></pre>
 </div>
 

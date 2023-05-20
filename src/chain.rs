@@ -1,9 +1,12 @@
-use crate::{atom::Atom, residue::Residue};
-
+use crate::residue::Residue;
+/*  */
 use pyo3::{
     exceptions::PyIndexError, pyclass, pymethods, types::PyList, Py, PyRefMut, PyResult,
     PyTraverseError, PyVisit, Python,
 };
+
+use heapless;
+use indexmap::IndexMap;
 
 /// Chain - a class that represents a chain of a PDB structure.
 #[pyclass(module = "nanoPDB")]
@@ -12,7 +15,7 @@ pub struct Chain {
     #[pyo3(get)]
     pub name: char,
 
-    pub residues: Vec<Option<Py<Residue>>>,
+    pub residues: IndexMap<(heapless::String<4>, i32), Option<Py<Residue>>>,
     pub current_index: usize,
 }
 
@@ -23,7 +26,7 @@ impl Chain {
     // ----------------------------------------------------------------------------------------
 
     pub fn __clear__(&mut self) {
-        for residue in self.residues.iter_mut() {
+        for residue in self.residues.values_mut() {
             *residue = None;
         }
     }
@@ -32,7 +35,7 @@ impl Chain {
         if index < self.residues.len() {
             Ok(self.residues[index]
                 .as_ref()
-                .expect("")
+                .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
                 .as_ref(python)
                 .into())
         } else {
@@ -71,7 +74,7 @@ impl Chain {
     }
 
     pub fn __traverse__(&self, visit: PyVisit<'_>) -> Result<(), PyTraverseError> {
-        for residue in self.residues.iter() {
+        for residue in self.residues.values() {
             if let Some(residue) = residue {
                 visit.call(residue)?;
             }
@@ -100,6 +103,7 @@ impl Chain {
     /// >>> parser = nanoPDB.Parser()
     /// >>> structure = parser.fetch("1zhy")
     /// >>> chain = structure[0]
+    /// ...
     /// >>> chain.get_atoms()
     ///
     /// [Atom {
@@ -141,7 +145,7 @@ impl Chain {
     pub fn get_atoms(&self, python: Python) -> PyResult<Py<PyList>> {
         let atoms = PyList::empty(python);
 
-        for residue in self.residues.iter().map(|residue| {
+        for residue in self.residues.values().map(|residue| {
             residue
                 .as_ref()
                 .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
@@ -174,6 +178,7 @@ impl Chain {
     /// >>> parser = nanoPDB.Parser()
     /// >>> structure = parser.fetch("1zhy")
     /// >>> chain = structure[0]
+    /// ...
     /// >>> chain.get_residues()
     ///
     /// [Residue {
@@ -191,7 +196,7 @@ impl Chain {
     pub fn get_residues(&self, python: Python) -> Py<PyList> {
         PyList::new(
             python,
-            self.residues.iter().map(|residue| {
+            self.residues.values().map(|residue| {
                 residue
                     .as_ref()
                     .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
@@ -206,29 +211,9 @@ impl Chain {
     pub fn new(name: char) -> Self {
         Chain {
             name,
-            residues: Vec::default(),
+            residues: IndexMap::default(),
             current_index: 0,
         }
-    }
-
-    #[inline(always)]
-    pub fn add_atom(&mut self, python: Python, atom: Atom) -> PyResult<()> {
-        self.residues
-            .last()
-            .unwrap()
-            .as_ref()
-            .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
-            .borrow_mut(python)
-            .add_atom(python, atom)?;
-
-        Ok(())
-    }
-
-    #[inline(always)]
-    pub fn add_residue(&mut self, python: Python, residue: Residue) -> PyResult<()> {
-        self.residues.push(Some(Py::new(python, residue)?));
-
-        Ok(())
     }
 }
 

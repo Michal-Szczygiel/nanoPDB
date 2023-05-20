@@ -103,11 +103,11 @@ class Residue:
         # Examples
         ### Retrieving the list of atoms that builds the residue.
 
-        ``` python
-        parser = nanoPDB.Parser()
-        structure = parser.fetch("1zhy")
-        residue = structure[0][0]
-        ```
+        >>> parser = nanoPDB.Parser()
+        >>> structure = parser.fetch("1zhy")
+        >>> residue = structure[0][0]
+        ...
+        >>> residue.get_atoms()
 
         ``` raw
         [Atom {
@@ -188,12 +188,11 @@ class Chain:
         # Examples
         ### Retrieving the list of atoms that builds the chain.
 
-        ``` python
-        parser = nanoPDB.Parser()
-        structure = parser.fetch("1zhy")
-        chain = structure[0]
-        chain.get_atoms()
-        ```
+        >>> parser = nanoPDB.Parser()
+        >>> structure = parser.fetch("1zhy")
+        >>> chain = structure[0]
+        ...
+        >>> chain.get_atoms()
 
         ``` raw
         [Atom {
@@ -247,12 +246,11 @@ class Chain:
         # Examples
         ### Retrieving the list of residues that builds the residue.
 
-        ``` python
-        parser = nanoPDB.Parser()
-        structure = parser.fetch("1zhy")
-        chain = structure[0]
-        chain.get_residues()
-        ```
+        >>> parser = nanoPDB.Parser()
+        >>> structure = parser.fetch("1zhy")
+        >>> chain = structure[0]
+        ...
+        >>> chain.get_residues()
 
         ``` raw
         [Residue {
@@ -318,11 +316,10 @@ class Structure:
         # Examples
         ### Retrieving the list of atoms that builds the structure.
 
-        ``` python
-        parser = nanoPDB.Parser()
-        structure = parser.fetch("1zhy")
-        structure.get_atoms()
-        ```
+        >>> parser = nanoPDB.Parser()
+        >>> structure = parser.fetch("1zhy")
+        ...
+        >>> structure.get_atoms()
 
         ``` raw
         [Atom {
@@ -376,11 +373,10 @@ class Structure:
         # Examples
         ### Retrieving the list of chains that builds the structure.
 
-        ``` python
-        parser = nanoPDB.Parser()
-        structure = parser.fetch("1zhy")
-        structure.get_chains()
-        ```
+        >>> parser = nanoPDB.Parser()
+        >>> structure = parser.fetch("1zhy")
+        ...
+        >>> structure.get_chains()
 
         ``` raw
         [Chain {
@@ -402,11 +398,10 @@ class Structure:
         # Examples
         ### Retrieving the list of residues that builds the structure.
 
-        ``` python
-        parser = nanoPDB.Parser()
-        structure = parser.fetch("1zhy")
-        structure.get_residues()
-        ```
+        >>> parser = nanoPDB.Parser()
+        >>> structure = parser.fetch("1zhy")
+        ...
+        >>> structure.get_residues()
 
         ``` raw
         [Residue {
@@ -457,11 +452,10 @@ class Parser:
         # Examples
         ### Fetching structure from RCSB PDB database.
 
-        ``` python
-        parser = nanoPDB.Parser()
-        structure = parser.fetch("1zhy")
-        structure
-        ```
+        >>> parser = nanoPDB.Parser()
+        >>> structure = parser.fetch("1zhy")
+        ...
+        >>> structure
 
         ``` raw
         Structure {
@@ -490,11 +484,10 @@ class Parser:
         # Examples
         ### Loading structure from file.
 
-        ``` python
-        parser = nanoPDB.Parser()
-        structure = parser.parse("tests/1zhy.pdb")
-        structure
-        ```
+        >>> parser = nanoPDB.Parser()
+        >>> structure = parser.parse("tests/1zhy.pdb")
+        ...
+        >>> structure
 
         ``` raw
         Structure {

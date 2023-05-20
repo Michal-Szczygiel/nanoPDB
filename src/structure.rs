@@ -1,9 +1,11 @@
-use crate::{atom::Atom, chain::Chain, residue::Residue, unit_cell::UnitCell};
+use crate::{chain::Chain, unit_cell::UnitCell};
 
 use pyo3::{
     exceptions::PyIndexError, pyclass, pymethods, types::PyList, Py, PyRefMut, PyResult,
     PyTraverseError, PyVisit, Python,
 };
+
+use indexmap::IndexMap;
 
 /// Structure - a class that represents a PDB structure.
 #[pyclass(module = "nanoPDB")]
@@ -21,7 +23,7 @@ pub struct Structure {
     pub date: String,
 
     pub unit_cell: Option<Py<UnitCell>>,
-    pub chains: Vec<Option<Py<Chain>>>,
+    pub chains: IndexMap<char, Option<Py<Chain>>>,
     pub current_index: usize,
 }
 
@@ -48,14 +50,18 @@ impl Structure {
     pub fn __clear__(&mut self) {
         self.unit_cell = None;
 
-        for chain in self.chains.iter_mut() {
+        for chain in self.chains.values_mut() {
             *chain = None;
         }
     }
 
     pub fn __getitem__(&self, python: Python, index: usize) -> PyResult<Py<Chain>> {
         if index < self.chains.len() {
-            Ok(self.chains[index].as_ref().expect("").as_ref(python).into())
+            Ok(self.chains[index]
+                .as_ref()
+                .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
+                .as_ref(python)
+                .into())
         } else {
             Err(PyIndexError::new_err("index out of range"))
         }
@@ -96,7 +102,7 @@ impl Structure {
             visit.call(unit_cell)?;
         }
 
-        for chain in self.chains.iter() {
+        for chain in self.chains.values() {
             if let Some(chain) = chain {
                 visit.call(chain)?;
             }
@@ -124,6 +130,7 @@ impl Structure {
     ///
     /// >>> parser = nanoPDB.Parser()
     /// >>> structure = parser.fetch("1zhy")
+    /// ...
     /// >>> structure.get_atoms()
     ///
     /// [Atom {
@@ -165,13 +172,13 @@ impl Structure {
     pub fn get_atoms(&self, python: Python) -> PyResult<Py<PyList>> {
         let atoms = PyList::empty(python);
 
-        for chain in self.chains.iter().map(|chain| {
+        for chain in self.chains.values().map(|chain| {
             chain
                 .as_ref()
                 .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
                 .borrow(python)
         }) {
-            for residue in chain.residues.iter().map(|residue| {
+            for residue in chain.residues.values().map(|residue| {
                 residue
                     .as_ref()
                     .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
@@ -204,6 +211,7 @@ impl Structure {
     ///
     /// >>> parser = nanoPDB.Parser()
     /// >>> structure = parser.fetch("1zhy")
+    /// ...
     /// >>> structure.get_chains()
     ///
     /// [Chain {
@@ -213,7 +221,7 @@ impl Structure {
     pub fn get_chains(&self, python: Python) -> Py<PyList> {
         PyList::new(
             python,
-            self.chains.iter().map(|chain| {
+            self.chains.values().map(|chain| {
                 chain
                     .as_ref()
                     .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
@@ -237,6 +245,7 @@ impl Structure {
     ///
     /// >>> parser = nanoPDB.Parser()
     /// >>> structure = parser.fetch("1zhy")
+    /// ...
     /// >>> structure.get_residues()
     ///
     /// [Residue {
@@ -254,13 +263,13 @@ impl Structure {
     pub fn get_residues(&self, python: Python) -> PyResult<Py<PyList>> {
         let residues = PyList::empty(python);
 
-        for chain in self.chains.iter().map(|chain| {
+        for chain in self.chains.values().map(|chain| {
             chain
                 .as_ref()
                 .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
                 .borrow(python)
         }) {
-            for residue in chain.residues.iter().map(|residue| {
+            for residue in chain.residues.values().map(|residue| {
                 residue
                     .as_ref()
                     .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
@@ -280,7 +289,7 @@ impl Structure {
             classification: String::default(),
             date: String::default(),
             unit_cell: Some(Py::new(python, UnitCell::default())?),
-            chains: Vec::default(),
+            chains: IndexMap::default(),
             current_index: 0,
         })
     }
@@ -295,39 +304,6 @@ impl Structure {
     #[inline(always)]
     pub fn set_unit_cell(&mut self, python: Python, unit_cell: UnitCell) -> PyResult<()> {
         self.unit_cell = Some(Py::new(python, unit_cell)?);
-
-        Ok(())
-    }
-
-    #[inline(always)]
-    pub fn add_atom(&mut self, python: Python, atom: Atom) -> PyResult<()> {
-        self.chains
-            .last()
-            .unwrap()
-            .as_ref()
-            .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
-            .borrow_mut(python)
-            .add_atom(python, atom)?;
-
-        Ok(())
-    }
-
-    #[inline(always)]
-    pub fn add_residue(&mut self, python: Python, residue: Residue) -> PyResult<()> {
-        self.chains
-            .last()
-            .unwrap()
-            .as_ref()
-            .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
-            .borrow_mut(python)
-            .add_residue(python, residue)?;
-
-        Ok(())
-    }
-
-    #[inline(always)]
-    pub fn add_chain(&mut self, python: Python, chain: Chain) -> PyResult<()> {
-        self.chains.push(Some(Py::new(python, chain)?));
 
         Ok(())
     }

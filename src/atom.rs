@@ -1,5 +1,8 @@
 use pyo3::{pyclass, pymethods};
 
+use heapless;
+
+#[derive(Clone)]
 pub enum AtomType {
     ATOM,
     HETATM,
@@ -24,15 +27,10 @@ pub struct Atom {
 
     /// [int] Atom number.
     #[pyo3(get)]
-    pub number: usize,
+    pub number: i32,
 
-    /// [str] Atom name.
-    #[pyo3(get)]
-    pub name: String,
-
-    /// [str] Chemical element name.
-    #[pyo3(get)]
-    pub element: String,
+    pub name: heapless::String<4>,
+    pub element: heapless::String<4>,
 
     /// [(float, float, float)] Position of an atom in 3D space.
     #[pyo3(get)]
@@ -50,10 +48,22 @@ impl Atom {
     // Getters
     // ----------------------------------------------------------------------------------------
 
+    /// [str] Chemical element name.
+    #[getter]
+    pub fn element(&self) -> String {
+        self.element.to_string()
+    }
+
     /// [str] Indicates the type of atom.
     #[getter]
     pub fn label(&self) -> String {
         format!("{}", self.label)
+    }
+
+    /// [str] Atom name.
+    #[getter]
+    pub fn name(&self) -> String {
+        self.name.to_string()
     }
 
     // ----------------------------------------------------------------------------------------
@@ -69,7 +79,7 @@ impl Atom {
     #[inline(always)]
     pub fn new(
         label: AtomType,
-        number: usize,
+        number: i32,
         name: &str,
         element: &str,
         position: (f64, f64, f64),
@@ -78,8 +88,8 @@ impl Atom {
         Atom {
             label,
             number,
-            name: name.to_string(),
-            element: element.to_string(),
+            name: name.into(),
+            element: element.into(),
             position,
             occupancy,
         }

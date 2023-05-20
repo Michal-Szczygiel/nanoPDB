@@ -6,7 +6,7 @@ use crate::{
     unit_cell::UnitCell,
 };
 
-use pyo3::{exceptions::PyException, pyclass, pymethods, PyResult, Python};
+use pyo3::{exceptions::PyException, pyclass, pymethods, Py, PyResult, Python};
 
 use std::{fs::File, io::Read, str::FromStr};
 
@@ -50,6 +50,7 @@ impl Parser {
     ///
     /// >>> parser = nanoPDB.Parser()
     /// >>> structure = parser.fetch("1zhy")
+    /// ...
     /// >>> structure
     ///
     /// Structure {
@@ -188,8 +189,6 @@ fn parse_atom_into(
     line_number: usize,
     label: AtomType,
     structure: &mut Structure,
-    current_chain_name: &mut char,
-    current_residue_number: &mut isize,
 ) -> PyResult<()> {
     if line.len() < 78 {
         return Err(PyException::new_err(format!(
@@ -198,45 +197,101 @@ fn parse_atom_into(
         )));
     }
 
-    let atom_number = parse_numeric::<usize>(line, line_number, 6, 11)?;
+    let atom_number = parse_numeric::<i32>(line, line_number, 6, 11)?;
     let atom_name = line[12..16].trim();
-    let residue_name = &line[17..20];
+    let residue_name = line[17..20].trim();
     let chain_name = line.chars().nth(21).unwrap();
-    let residue_number = parse_numeric::<isize>(line, line_number, 22, 26)?;
+    let residue_number = parse_numeric::<i32>(line, line_number, 22, 26)?;
     let atom_pos_x = parse_numeric::<f64>(line, line_number, 30, 38)?;
     let atom_pos_y = parse_numeric::<f64>(line, line_number, 38, 46)?;
     let atom_pos_z = parse_numeric::<f64>(line, line_number, 46, 54)?;
     let atom_occupancy = parse_numeric::<f64>(line, line_number, 54, 60)?;
     let atom_element = line[76..78].trim();
 
-    let atom = Atom::new(
-        label,
-        atom_number,
-        atom_name,
-        atom_element,
-        (atom_pos_x, atom_pos_y, atom_pos_z),
-        atom_occupancy,
-    );
+    let full_add = match structure.chains.get(&chain_name) {
+        // Chain exists:
+        Some(chain) => {
+            match chain
+                .as_ref()
+                .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
+                .borrow(python)
+                .residues
+                .get(&(residue_name.into(), residue_number))
+            {
+                // Residue exists (adds atom):
+                Some(residue) => {
+                    let atom = Atom::new(
+                        label.clone(),
+                        atom_number,
+                        atom_name,
+                        atom_element,
+                        (atom_pos_x, atom_pos_y, atom_pos_z),
+                        atom_occupancy,
+                    );
 
-    if *current_residue_number == residue_number {
-        structure.add_atom(python, atom)?;
-    } else if *current_chain_name == chain_name {
-        let residue = Residue::new(residue_number, residue_name);
+                    residue
+                        .as_ref()
+                        .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
+                        .borrow_mut(python)
+                        .atoms
+                        .push(Some(Py::new(python, atom)?));
 
-        structure.add_residue(python, residue)?;
-        structure.add_atom(python, atom)?;
+                    true
+                }
+                // Residue does not exist:
+                None => false,
+            }
+        }
+        // Chain does not exist (adds chain, adds residue, adds atom):
+        None => {
+            let atom = Atom::new(
+                label.clone(),
+                atom_number,
+                atom_name,
+                atom_element,
+                (atom_pos_x, atom_pos_y, atom_pos_z),
+                atom_occupancy,
+            );
+            let mut residue = Residue::new(residue_number, residue_name);
+            let mut chain = Chain::new(chain_name);
 
-        *current_residue_number = residue_number;
-    } else {
-        let chain = Chain::new(chain_name);
-        let residue = Residue::new(residue_number, residue_name);
+            residue.atoms.push(Some(Py::new(python, atom)?));
+            chain.residues.insert(
+                (residue_name.into(), residue_number),
+                Some(Py::new(python, residue)?),
+            );
+            structure
+                .chains
+                .insert(chain_name, Some(Py::new(python, Chain::new(chain_name))?));
 
-        structure.add_chain(python, chain)?;
-        structure.add_residue(python, residue)?;
-        structure.add_atom(python, atom)?;
+            true
+        }
+    };
 
-        *current_chain_name = chain_name;
-        *current_residue_number = residue_number;
+    if !full_add {
+        let atom = Atom::new(
+            label,
+            atom_number,
+            atom_name,
+            atom_element,
+            (atom_pos_x, atom_pos_y, atom_pos_z),
+            atom_occupancy,
+        );
+        let mut residue = Residue::new(residue_number, residue_name);
+
+        residue.atoms.push(Some(Py::new(python, atom)?));
+        structure
+            .chains
+            .get(&chain_name)
+            .unwrap()
+            .as_ref()
+            .expect(concat!("memory error in: ", file!(), ", line: ", line!()))
+            .borrow_mut(python)
+            .residues
+            .insert(
+                (residue_name.into(), residue_number),
+                Some(Py::new(python, residue)?),
+            );
     }
 
     Ok(())
@@ -244,9 +299,6 @@ fn parse_atom_into(
 
 #[inline(always)]
 fn parse_pdb(python: Python, content: &str) -> PyResult<Structure> {
-    let mut current_chain_name: char = ' ';
-    let mut current_residue_number: isize = isize::MIN;
-
     let mut structure = Structure::new(python)?;
 
     for (line_number, line) in content.lines().enumerate() {
@@ -258,25 +310,9 @@ fn parse_pdb(python: Python, content: &str) -> PyResult<Structure> {
         }
 
         if &line[0..4] == "ATOM" {
-            parse_atom_into(
-                python,
-                line,
-                line_number,
-                AtomType::ATOM,
-                &mut structure,
-                &mut current_chain_name,
-                &mut current_residue_number,
-            )?;
+            parse_atom_into(python, line, line_number, AtomType::ATOM, &mut structure)?;
         } else if &line[0..6] == "HETATM" {
-            parse_atom_into(
-                python,
-                line,
-                line_number,
-                AtomType::HETATM,
-                &mut structure,
-                &mut current_chain_name,
-                &mut current_residue_number,
-            )?;
+            parse_atom_into(python, line, line_number, AtomType::HETATM, &mut structure)?;
         } else if &line[0..6] == "HEADER" {
             parse_header_into(line, line_number, &mut structure)?;
         } else if &line[0..6] == "CRYST1" {
