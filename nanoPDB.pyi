@@ -1,6 +1,12 @@
 from typing import Tuple, List
 
 
+class Periodic:
+    def __init__(self) -> None: ...
+
+    def get_radius(self, atom: str) -> float: ...
+
+
 class UnitCell:
     """
     UnitCell - a class that represents a unit cell of a PDB structure.
