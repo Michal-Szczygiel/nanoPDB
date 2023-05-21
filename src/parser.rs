@@ -303,10 +303,11 @@ fn parse_pdb(python: Python, content: &str) -> PyResult<Structure> {
 
     for (line_number, line) in content.lines().enumerate() {
         if line.len() < 6 {
-            return Err(PyException::new_err(format!(
-                "error in line: {}, label field error",
-                line_number + 1
-            )));
+            // return Err(PyException::new_err(format!(
+            //     "error in line: {}, label field error",
+            //     line_number + 1
+            // )));
+            continue;
         }
 
         if &line[0..4] == "ATOM" {
